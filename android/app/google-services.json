@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "235052744762",
+    "project_id": "real-chat-app-78bf0",
+    "storage_bucket": "real-chat-app-78bf0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:235052744762:android:918eee926c4182e8bbf503",
+        "android_client_info": {
+          "package_name": "com.mohibullah.real_chat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "235052744762-c1401rflkdtb96gc9928ualesldm9jgf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mohibullah.real_chat",
+            "certificate_hash": "9206c9993d6830f8dbb9630baba5e7a837428ee9"
+          }
+        },
+        {
+          "client_id": "235052744762-27jrodl3q07a04jdj0i1rm3kfrsb172u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDT1tnnNUEgvLta8vcdhwxvBbmCIxg4AMw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "235052744762-27jrodl3q07a04jdj0i1rm3kfrsb172u.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "235052744762-gog14scrc7lrclfses6frq1lga72ghkc.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.mohibullah.realChat"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
