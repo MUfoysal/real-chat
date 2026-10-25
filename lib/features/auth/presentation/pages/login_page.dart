@@ -1,8 +1,8 @@
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../../data/auth_repository.dart';
+import 'signup_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -145,9 +145,8 @@ class _LoginPageState extends State<LoginPage> {
                       validator: (value) {
                         final email = value?.trim() ?? '';
                         if (email.isEmpty) return 'Email is required.';
-                        if (!RegExp(
-                          r'^[^@\s]+@[^@\s]+\.[^@\s]+$',
-                        ).hasMatch(email)) {
+                        if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$')
+                            .hasMatch(email)) {
                           return 'Enter a valid email address.';
                         }
                         return null;
@@ -208,9 +207,7 @@ class _LoginPageState extends State<LoginPage> {
                       const SizedBox(height: 8),
                     ],
                     FilledButton(
-                      onPressed: _isLoading || _isGoogleLoading
-                          ? null
-                          : _login,
+                      onPressed: _isLoading || _isGoogleLoading ? null : _login,
                       child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         child: _isLoading
@@ -244,9 +241,22 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    const Text(
-                      'New here? Sign-up screen will be added next.',
-                      textAlign: TextAlign.center,
+                    Wrap(
+                      alignment: WrapAlignment.center,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        const Text("Don't have an account?"),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute<void>(
+                                builder: (_) => const SignupPage(),
+                              ),
+                            );
+                          },
+                          child: const Text('Sign Up'),
+                        ),
+                      ],
                     ),
                   ],
                 ),

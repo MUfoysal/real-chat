@@ -1,21 +1,50 @@
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AuthRepository {
   AuthRepository({FirebaseAuth? firebaseAuth})
-      : _auth = firebaseAuth ?? FirebaseAuth.instance;
+    : _auth = firebaseAuth ?? FirebaseAuth.instance;
 
   final FirebaseAuth _auth;
 
   // Google Sign-In 7.x: initialize exactly once.
-  static final Future<void> _googleInitialization =
-      GoogleSignIn.instance.initialize();
+  static final Future<void> _googleInitialization = GoogleSignIn.instance
+      .initialize();
 
   Stream<User?> get authStateChanges => _auth.authStateChanges();
 
   User? get currentUser => _auth.currentUser;
+
+  Future<void> _saveUserProfile(User user) async {
+    final userRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid);
+
+    await FirebaseFirestore.instance.runTransaction<void>((transaction) async {
+      final snapshot = await transaction.get(userRef);
+
+      final profile = <String, dynamic>{
+        'uid': user.uid,
+        'name': user.displayName ?? '',
+        'email': user.email ?? '',
+        'photoUrl': user.photoURL,
+      };
+
+      if (!snapshot.exists) {
+        transaction.set(userRef, {
+          ...profile,
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+      } else {
+        transaction.set(userRef, {
+          ...profile,
+          'updatedAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+      }
+    });
+  }
 
   Future<UserCredential> signUp({
     required String email,
@@ -27,10 +56,23 @@ class AuthRepository {
       password: password,
     );
 
+    final user = credential.user;
+
+    if (user == null) {
+      throw StateError('Account creation failed.');
+    }
+
     final name = displayName?.trim();
 
     if (name != null && name.isNotEmpty) {
-      await credential.user?.updateDisplayName(name);
+      await user.updateDisplayName(name);
+      await user.reload();
+    }
+
+    final currentUser = _auth.currentUser;
+
+    if (currentUser != null) {
+      await _saveUserProfile(currentUser);
     }
 
     return credential;
@@ -65,9 +107,7 @@ class AuthRepository {
     return _auth.signInWithCredential(credential);
   }
 
-  Future<void> sendPasswordResetEmail({
-    required String email,
-  }) {
+  Future<void> sendPasswordResetEmail({required String email}) {
     return _auth.sendPasswordResetEmail(email: email.trim());
   }
 
