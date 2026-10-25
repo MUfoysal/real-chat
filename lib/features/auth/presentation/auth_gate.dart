@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../data/auth_repository.dart';
 import 'pages/login_page.dart';
+import '../../chat/presentation/pages/users_page.dart';
 
 class AuthGate extends StatelessWidget {
   AuthGate({super.key});
@@ -23,12 +24,10 @@ class AuthGate extends StatelessWidget {
           );
         }
 
-        if (snapshot.hasData) {
-          return const Scaffold(
-            body: Center(
-              child: Text('Welcome! Chat Home is coming next.'),
-            ),
-          );
+        final user = snapshot.data;
+
+        if (user != null) {
+          return UsersPage(currentUser: user);
         }
 
         return const LoginPage();
