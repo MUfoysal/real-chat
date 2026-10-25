@@ -89,12 +89,20 @@ class AuthRepository {
   }
 
   Future<UserCredential> signInWithGoogle() async {
-    // Web uses Firebase's popup flow.
+    
     if (kIsWeb) {
-      return _auth.signInWithPopup(GoogleAuthProvider());
+      final credential = await _auth.signInWithPopup(GoogleAuthProvider());
+
+      final user = credential.user;
+
+      if (user != null) {
+        await _saveUserProfile(user);
+      }
+
+      return credential;
     }
 
-    // Android/iOS use google_sign_in 7.x.
+    
     await _googleInitialization;
 
     final googleUser = await GoogleSignIn.instance.authenticate();
@@ -104,7 +112,15 @@ class AuthRepository {
       idToken: googleAuth.idToken,
     );
 
-    return _auth.signInWithCredential(credential);
+    final userCredential = await _auth.signInWithCredential(credential);
+
+    final user = userCredential.user;
+
+    if (user != null) {
+      await _saveUserProfile(user);
+    }
+
+    return userCredential;
   }
 
   Future<void> sendPasswordResetEmail({required String email}) {
