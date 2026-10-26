@@ -1,3 +1,4 @@
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -18,7 +19,6 @@ class _LoginPageState extends State<LoginPage> {
   final _authRepository = AuthRepository();
 
   bool _isLoading = false;
-  bool _isGoogleLoading = false;
   bool _obscurePassword = true;
   String? _errorMessage;
 
@@ -39,41 +39,27 @@ class _LoginPageState extends State<LoginPage> {
 
     try {
       await _authRepository.signIn(
-        email: _emailController.text,
+        email: _emailController.text.trim(),
         password: _passwordController.text,
       );
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;
-      setState(() => _errorMessage = _friendlyError(e));
+
+      setState(() {
+        _errorMessage = _friendlyError(e);
+      });
     } catch (_) {
       if (!mounted) return;
+
       setState(() {
         _errorMessage = 'Login failed. Please try again.';
       });
     } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
-  }
-
-  Future<void> _googleLogin() async {
-    setState(() {
-      _isGoogleLoading = true;
-      _errorMessage = null;
-    });
-
-    try {
-      await _authRepository.signInWithGoogle();
-    } on FirebaseAuthException catch (e) {
-      if (!mounted) return;
-      setState(() => _errorMessage = _friendlyError(e));
-    } catch (_) {
-      if (!mounted) return;
-      setState(() {
-        _errorMessage =
-            'Google Sign-In failed. Check your configuration and try again.';
-      });
-    } finally {
-      if (mounted) setState(() => _isGoogleLoading = false);
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -81,18 +67,24 @@ class _LoginPageState extends State<LoginPage> {
     switch (e.code) {
       case 'invalid-email':
         return 'Please enter a valid email address.';
+
       case 'user-not-found':
       case 'wrong-password':
       case 'invalid-credential':
         return 'Email or password is incorrect.';
+
       case 'email-already-in-use':
         return 'An account already exists for this email.';
+
       case 'weak-password':
         return 'Please choose a stronger password.';
+
       case 'network-request-failed':
         return 'Network error. Check your internet connection.';
+
       case 'too-many-requests':
         return 'Too many attempts. Please try again later.';
+
       default:
         return e.message ?? 'Authentication failed. Please try again.';
     }
@@ -123,8 +115,10 @@ class _LoginPageState extends State<LoginPage> {
                     Text(
                       'Welcome Back',
                       textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.headlineMedium
-                          ?.copyWith(fontWeight: FontWeight.bold),
+                      style:
+                          Theme.of(context).textTheme.headlineMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
                     ),
                     const SizedBox(height: 8),
                     Text(
@@ -133,6 +127,8 @@ class _LoginPageState extends State<LoginPage> {
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     const SizedBox(height: 32),
+
+                    // Email field
                     TextFormField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
@@ -144,15 +140,22 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       validator: (value) {
                         final email = value?.trim() ?? '';
-                        if (email.isEmpty) return 'Email is required.';
+
+                        if (email.isEmpty) {
+                          return 'Email is required.';
+                        }
+
                         if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$')
                             .hasMatch(email)) {
                           return 'Enter a valid email address.';
                         }
+
                         return null;
                       },
                     ),
                     const SizedBox(height: 16),
+
+                    // Password field
                     TextFormField(
                       controller: _passwordController,
                       obscureText: _obscurePassword,
@@ -178,10 +181,13 @@ class _LoginPageState extends State<LoginPage> {
                         if (value == null || value.isEmpty) {
                           return 'Password is required.';
                         }
+
                         return null;
                       },
                       onFieldSubmitted: (_) => _login(),
                     ),
+
+                    // Forgot password
                     Align(
                       alignment: Alignment.centerRight,
                       child: TextButton(
@@ -197,6 +203,8 @@ class _LoginPageState extends State<LoginPage> {
                         child: const Text('Forgot password?'),
                       ),
                     ),
+
+                    // Error message
                     if (_errorMessage != null) ...[
                       const SizedBox(height: 8),
                       Text(
@@ -206,8 +214,10 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       const SizedBox(height: 8),
                     ],
+
+                    // Email and password login
                     FilledButton(
-                      onPressed: _isLoading || _isGoogleLoading ? null : _login,
+                      onPressed: _isLoading ? null : _login,
                       child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         child: _isLoading
@@ -222,25 +232,22 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     const SizedBox(height: 16),
+
+                    // Google Sign-In: UI retained, functionality disabled
                     OutlinedButton.icon(
-                      onPressed: _isLoading || _isGoogleLoading
-                          ? null
-                          : _googleLogin,
-                      icon: const Icon(Icons.g_mobiledata, size: 30),
-                      label: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        child: _isGoogleLoading
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                ),
-                              )
-                            : const Text('Continue with Google'),
+                      onPressed: null,
+                      icon: const Icon(
+                        Icons.g_mobiledata,
+                        size: 30,
+                      ),
+                      label: const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 12),
+                        child: Text('Continue with Google'),
                       ),
                     ),
                     const SizedBox(height: 20),
+
+                    // Sign-up navigation
                     Wrap(
                       alignment: WrapAlignment.center,
                       crossAxisAlignment: WrapCrossAlignment.center,

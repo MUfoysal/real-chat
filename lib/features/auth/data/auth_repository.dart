@@ -1,28 +1,22 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthRepository {
-  AuthRepository({FirebaseAuth? firebaseAuth})
-    : _auth = firebaseAuth ?? FirebaseAuth.instance;
+  AuthRepository({FirebaseAuth? firebaseAuth, FirebaseFirestore? firestore})
+    : _auth = firebaseAuth ?? FirebaseAuth.instance,
+      _firestore = firestore ?? FirebaseFirestore.instance;
 
   final FirebaseAuth _auth;
-
-  // Google Sign-In 7.x: initialize exactly once.
-  static final Future<void> _googleInitialization = GoogleSignIn.instance
-      .initialize();
+  final FirebaseFirestore _firestore;
 
   Stream<User?> get authStateChanges => _auth.authStateChanges();
 
   User? get currentUser => _auth.currentUser;
 
   Future<void> _saveUserProfile(User user) async {
-    final userRef = FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid);
+    final userRef = _firestore.collection('users').doc(user.uid);
 
-    await FirebaseFirestore.instance.runTransaction<void>((transaction) async {
+    await _firestore.runTransaction<void>((transaction) async {
       final snapshot = await transaction.get(userRef);
 
       final profile = <String, dynamic>{
@@ -88,50 +82,11 @@ class AuthRepository {
     );
   }
 
-  Future<UserCredential> signInWithGoogle() async {
-    
-    if (kIsWeb) {
-      final credential = await _auth.signInWithPopup(GoogleAuthProvider());
-
-      final user = credential.user;
-
-      if (user != null) {
-        await _saveUserProfile(user);
-      }
-
-      return credential;
-    }
-
-    
-    await _googleInitialization;
-
-    final googleUser = await GoogleSignIn.instance.authenticate();
-    final googleAuth = googleUser.authentication;
-
-    final credential = GoogleAuthProvider.credential(
-      idToken: googleAuth.idToken,
-    );
-
-    final userCredential = await _auth.signInWithCredential(credential);
-
-    final user = userCredential.user;
-
-    if (user != null) {
-      await _saveUserProfile(user);
-    }
-
-    return userCredential;
-  }
-
   Future<void> sendPasswordResetEmail({required String email}) {
     return _auth.sendPasswordResetEmail(email: email.trim());
   }
 
   Future<void> signOut() async {
-    if (!kIsWeb) {
-      await GoogleSignIn.instance.signOut();
-    }
-
     await _auth.signOut();
   }
 }

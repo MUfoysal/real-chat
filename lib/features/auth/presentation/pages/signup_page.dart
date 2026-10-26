@@ -47,11 +47,9 @@ class _SignupPageState extends State<SignupPage> {
         password: _passwordController.text,
         displayName: _nameController.text,
       );
-
-      // AuthGate detects the new authenticated user automatically.
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;
-
+      Navigator.of(context).pop();
       setState(() {
         _errorMessage = switch (e.code) {
           'email-already-in-use' => 'An account already exists for this email.',
@@ -59,14 +57,15 @@ class _SignupPageState extends State<SignupPage> {
           'weak-password' => 'Please choose a stronger password.',
           'network-request-failed' =>
             'Network error. Check your internet connection.',
+          'permission-denied' => 'Permission denied while saving your profile.',
           _ => e.message ?? 'Could not create your account.',
         };
       });
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
 
       setState(() {
-        _errorMessage = 'Something went wrong. Please try again.';
+        _errorMessage = 'Something went wrong: $e';
       });
     } finally {
       if (mounted) {
