@@ -1,15 +1,12 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:real_chat/features/chat/presentation/pages/chat_page.dart';
 
 import '../../../auth/data/auth_repository.dart';
 
 class UsersPage extends StatefulWidget {
-  const UsersPage({
-    super.key,
-    required this.currentUser,
-  });
+  const UsersPage({super.key, required this.currentUser});
 
   final User currentUser;
 
@@ -19,8 +16,7 @@ class UsersPage extends StatefulWidget {
 
 class _UsersPageState extends State<UsersPage> {
   final AuthRepository _authRepository = AuthRepository();
-  final TextEditingController _searchController =
-      TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
 
   String _searchQuery = '';
 
@@ -159,8 +155,7 @@ class _UsersPageState extends State<UsersPage> {
               ),
             ),
             Expanded(
-              child: StreamBuilder<
-                  QuerySnapshot<Map<String, dynamic>>>(
+              child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
                 stream: FirebaseFirestore.instance
                     .collection('users')
                     .snapshots(),
@@ -176,23 +171,21 @@ class _UsersPageState extends State<UsersPage> {
                     );
                   }
 
-                  if (snapshot.connectionState ==
-                      ConnectionState.waiting) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
                   }
 
-                  final users = snapshot.data?.docs.where((doc) {
+                  final users =
+                      snapshot.data?.docs.where((doc) {
                         if (doc.id == widget.currentUser.uid) {
                           return false;
                         }
 
                         final data = doc.data();
-                        final name =
-                            (data['name'] as String? ?? '').toLowerCase();
-                        final email =
-                            (data['email'] as String? ?? '').toLowerCase();
+                        final name = (data['name'] as String? ?? '')
+                            .toLowerCase();
+                        final email = (data['email'] as String? ?? '')
+                            .toLowerCase();
 
                         return name.contains(_searchQuery) ||
                             email.contains(_searchQuery);
@@ -233,16 +226,14 @@ class _UsersPageState extends State<UsersPage> {
                   return ListView.separated(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
                     itemCount: users.length,
-                    separatorBuilder: (_, _) =>
-                        const SizedBox(height: 6),
+                    separatorBuilder: (_, _) => const SizedBox(height: 6),
                     itemBuilder: (context, index) {
                       final userDoc = users[index];
                       final userData = userDoc.data();
                       final name = _displayName(userData);
-                      final email =
-                          (userData['email'] as String? ?? '').trim();
-                      final photoUrl =
-                          (userData['photoUrl'] as String? ?? '').trim();
+                      final email = (userData['email'] as String? ?? '').trim();
+                      final photoUrl = (userData['photoUrl'] as String? ?? '')
+                          .trim();
 
                       return Card(
                         elevation: 0,
@@ -276,9 +267,7 @@ class _UsersPageState extends State<UsersPage> {
                             name.isEmpty ? 'Unknown user' : name,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w600,
-                            ),
+                            style: const TextStyle(fontWeight: FontWeight.w600),
                           ),
                           subtitle: Padding(
                             padding: const EdgeInsets.only(top: 4),
@@ -293,15 +282,19 @@ class _UsersPageState extends State<UsersPage> {
                             color: colors.primary,
                           ),
                           onTap: () {
-                            ScaffoldMessenger.of(context)
-                              ..hideCurrentSnackBar()
-                              ..showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    'Selected $name. Chat screen will be added next.',
-                                  ),
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => ChatPage(
+                                  currentUser: widget.currentUser,
+                                  otherUid: userDoc.id,
+                                  otherName: name.isEmpty
+                                      ? 'Unknown user'
+                                      : name,
+                                  otherEmail: email,
+                                  otherPhotoUrl: photoUrl,
                                 ),
-                              );
+                              ),
+                            );
                           },
                         ),
                       );
@@ -342,33 +335,24 @@ class _StatusView extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              size: 56,
-              color: colors.primary,
-            ),
+            Icon(icon, size: 56, color: colors.primary),
             const SizedBox(height: 16),
             Text(
               title,
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+              style: Theme.of(context).textTheme.titleLarge
+                  ?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
               message,
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: colors.onSurfaceVariant,
-                  ),
+              style: Theme.of(context).textTheme.bodyMedium
+                  ?.copyWith(color: colors.onSurfaceVariant),
             ),
             if (actionLabel != null && onAction != null) ...[
               const SizedBox(height: 18),
-              OutlinedButton(
-                onPressed: onAction,
-                child: Text(actionLabel!),
-              ),
+              OutlinedButton(onPressed: onAction, child: Text(actionLabel!)),
             ],
           ],
         ),
