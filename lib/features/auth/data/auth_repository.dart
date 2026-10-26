@@ -2,9 +2,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthRepository {
-  AuthRepository({FirebaseAuth? firebaseAuth, FirebaseFirestore? firestore})
-    : _auth = firebaseAuth ?? FirebaseAuth.instance,
-      _firestore = firestore ?? FirebaseFirestore.instance;
+  AuthRepository({
+    FirebaseAuth? firebaseAuth,
+    FirebaseFirestore? firestore,
+  })  : _auth = firebaseAuth ?? FirebaseAuth.instance,
+        _firestore = firestore ?? FirebaseFirestore.instance;
 
   final FirebaseAuth _auth;
   final FirebaseFirestore _firestore;
@@ -16,34 +18,22 @@ class AuthRepository {
   Future<void> _saveUserProfile(User user) async {
     final userRef = _firestore.collection('users').doc(user.uid);
 
-    await _firestore.runTransaction<void>((transaction) async {
-      final snapshot = await transaction.get(userRef);
-
-      final profile = <String, dynamic>{
+    await userRef.set(
+      {
         'uid': user.uid,
         'name': user.displayName ?? '',
         'email': user.email ?? '',
         'photoUrl': user.photoURL,
-      };
-
-      if (!snapshot.exists) {
-        transaction.set(userRef, {
-          ...profile,
-          'createdAt': FieldValue.serverTimestamp(),
-        });
-      } else {
-        transaction.set(userRef, {
-          ...profile,
-          'updatedAt': FieldValue.serverTimestamp(),
-        }, SetOptions(merge: true));
-      }
-    });
+        'updatedAt': FieldValue.serverTimestamp(),
+      },
+      SetOptions(merge: true),
+    );
   }
 
   Future<UserCredential> signUp({
+    required String name,
     required String email,
     required String password,
-    String? displayName,
   }) async {
     final credential = await _auth.createUserWithEmailAndPassword(
       email: email.trim(),
@@ -56,17 +46,17 @@ class AuthRepository {
       throw StateError('Account creation failed.');
     }
 
-    final name = displayName?.trim();
+    final trimmedName = name.trim();
 
-    if (name != null && name.isNotEmpty) {
-      await user.updateDisplayName(name);
+    if (trimmedName.isNotEmpty) {
+      await user.updateDisplayName(trimmedName);
       await user.reload();
     }
 
-    final currentUser = _auth.currentUser;
+    final updatedUser = _auth.currentUser;
 
-    if (currentUser != null) {
-      await _saveUserProfile(currentUser);
+    if (updatedUser != null) {
+      await _saveUserProfile(updatedUser);
     }
 
     return credential;
@@ -82,8 +72,12 @@ class AuthRepository {
     );
   }
 
-  Future<void> sendPasswordResetEmail({required String email}) {
-    return _auth.sendPasswordResetEmail(email: email.trim());
+  Future<void> sendPasswordResetEmail({
+    required String email,
+  }) {
+    return _auth.sendPasswordResetEmail(
+      email: email.trim(),
+    );
   }
 
   Future<void> signOut() async {

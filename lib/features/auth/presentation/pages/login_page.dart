@@ -1,4 +1,3 @@
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -19,8 +18,11 @@ class _LoginPageState extends State<LoginPage> {
   final _authRepository = AuthRepository();
 
   bool _isLoading = false;
+  bool _isResettingPassword = false;
   bool _obscurePassword = true;
+
   String? _errorMessage;
+  String? _successMessage;
 
   @override
   void dispose() {
@@ -30,11 +32,14 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _login() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (_isLoading || !_formKey.currentState!.validate()) {
+      return;
+    }
 
     setState(() {
       _isLoading = true;
       _errorMessage = null;
+      _successMessage = null;
     });
 
     try {
@@ -42,13 +47,16 @@ class _LoginPageState extends State<LoginPage> {
         email: _emailController.text.trim(),
         password: _passwordController.text,
       );
+
+      // AuthGate listens to Firebase authStateChanges
+      // and opens UsersPage after successful login.
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;
 
       setState(() {
         _errorMessage = _friendlyError(e);
       });
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
 
       setState(() {
@@ -63,28 +71,73 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+  Future<void> _resetPassword() async {
+    final email = _emailController.text.trim();
+
+    if (email.isEmpty ||
+        !RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(email)) {
+      setState(() {
+        _errorMessage = 'Enter a valid email address first.';
+        _successMessage = null;
+      });
+      return;
+    }
+
+    setState(() {
+      _isResettingPassword = true;
+      _errorMessage = null;
+      _successMessage = null;
+    });
+
+    try {
+      await _authRepository.sendPasswordResetEmail(email: email);
+
+      if (!mounted) return;
+
+      setState(() {
+        _successMessage = 'Password reset email sent. Check your inbox.';
+      });
+    } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        _errorMessage = _friendlyError(e);
+      });
+    } catch (_) {
+      if (!mounted) return;
+
+      setState(() {
+        _errorMessage = 'Could not send reset email. Please try again.';
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isResettingPassword = false;
+        });
+      }
+    }
+  }
+
   String _friendlyError(FirebaseAuthException e) {
     switch (e.code) {
       case 'invalid-email':
         return 'Please enter a valid email address.';
-
       case 'user-not-found':
       case 'wrong-password':
       case 'invalid-credential':
         return 'Email or password is incorrect.';
-
+      case 'user-disabled':
+        return 'This account has been disabled.';
       case 'email-already-in-use':
         return 'An account already exists for this email.';
-
       case 'weak-password':
         return 'Please choose a stronger password.';
-
       case 'network-request-failed':
         return 'Network error. Check your internet connection.';
-
       case 'too-many-requests':
         return 'Too many attempts. Please try again later.';
-
+      case 'operation-not-allowed':
+        return 'Email/password sign-in is disabled in Firebase.';
       default:
         return e.message ?? 'Authentication failed. Please try again.';
     }
@@ -115,10 +168,10 @@ class _LoginPageState extends State<LoginPage> {
                     Text(
                       'Welcome Back',
                       textAlign: TextAlign.center,
-                      style:
-                          Theme.of(context).textTheme.headlineMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
+                      style: Theme.of(context)
+                          .textTheme
+                          .headlineMedium
+                          ?.copyWith(fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 8),
                     Text(
@@ -128,7 +181,6 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     const SizedBox(height: 32),
 
-                    // Email field
                     TextFormField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
@@ -155,7 +207,6 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     const SizedBox(height: 16),
 
-                    // Password field
                     TextFormField(
                       controller: _passwordController,
                       obscureText: _obscurePassword,
@@ -187,24 +238,24 @@ class _LoginPageState extends State<LoginPage> {
                       onFieldSubmitted: (_) => _login(),
                     ),
 
-                    // Forgot password
                     Align(
                       alignment: Alignment.centerRight,
                       child: TextButton(
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                'Password reset screen is coming next.',
-                              ),
-                            ),
-                          );
-                        },
-                        child: const Text('Forgot password?'),
+                        onPressed: _isResettingPassword
+                            ? null
+                            : _resetPassword,
+                        child: _isResettingPassword
+                            ? const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Text('Forgot password?'),
                       ),
                     ),
 
-                    // Error message
                     if (_errorMessage != null) ...[
                       const SizedBox(height: 8),
                       Text(
@@ -215,7 +266,16 @@ class _LoginPageState extends State<LoginPage> {
                       const SizedBox(height: 8),
                     ],
 
-                    // Email and password login
+                    if (_successMessage != null) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        _successMessage!,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: colors.primary),
+                      ),
+                      const SizedBox(height: 8),
+                    ],
+
                     FilledButton(
                       onPressed: _isLoading ? null : _login,
                       child: Padding(
@@ -233,13 +293,9 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     const SizedBox(height: 16),
 
-                    // Google Sign-In: UI retained, functionality disabled
                     OutlinedButton.icon(
                       onPressed: null,
-                      icon: const Icon(
-                        Icons.g_mobiledata,
-                        size: 30,
-                      ),
+                      icon: const Icon(Icons.g_mobiledata, size: 30),
                       label: const Padding(
                         padding: EdgeInsets.symmetric(vertical: 12),
                         child: Text('Continue with Google'),
@@ -247,20 +303,21 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     const SizedBox(height: 20),
 
-                    // Sign-up navigation
                     Wrap(
                       alignment: WrapAlignment.center,
                       crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
                         const Text("Don't have an account?"),
                         TextButton(
-                          onPressed: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute<void>(
-                                builder: (_) => const SignupPage(),
-                              ),
-                            );
-                          },
+                          onPressed: _isLoading
+                              ? null
+                              : () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute<void>(
+                                      builder: (_) => const SignupPage(),
+                                    ),
+                                  );
+                                },
                           child: const Text('Sign Up'),
                         ),
                       ],

@@ -1,4 +1,3 @@
-
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
@@ -12,11 +11,13 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  runApp(const MyApp());
+  runApp(AuthApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class AuthApp extends StatelessWidget {
+  AuthApp({super.key});
+
+  final AuthGate _authGate = AuthGate();
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +33,7 @@ class MyApp extends StatelessWidget {
           border: OutlineInputBorder(),
         ),
       ),
-      home: AuthGate(),
+      home: _authGate,
     );
   }
 }
