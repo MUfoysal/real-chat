@@ -319,26 +319,29 @@ class _ChatPageState extends State<ChatPage> {
                     onPressed: _isSending
                         ? null
                         : () async {
+                            String chatId;
+
                             try {
-                              final chatId = await _conversationFuture;
-
-                              if (!mounted) return;
-
-                              await _sendMessage(chatId);
+                              chatId = await _conversationFuture;
+                              debugPrint('Conversation loaded: $chatId');
                             } catch (error, stackTrace) {
-                              debugPrint('Send message error: $error');
+                              debugPrint('CONVERSATION ERROR: $error');
                               debugPrintStack(stackTrace: stackTrace);
 
                               if (!mounted) return;
 
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: Text(
-                                    'Failed to open or send message: $error',
-                                  ),
+                                  content: Text('Conversation error: $error'),
                                 ),
                               );
+                              return;
                             }
+
+                            if (!mounted) return;
+
+                            debugPrint('Starting message send');
+                            await _sendMessage(chatId);
                           },
                     icon: _isSending
                         ? const SizedBox(
