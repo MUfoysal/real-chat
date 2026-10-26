@@ -57,6 +57,15 @@ class ChatRepository {
     return id;
   }
 
+  
+  Stream<QuerySnapshot<Map<String, dynamic>>> conversationsStream(
+    String currentUid,
+  ) {
+    return _chats
+        .where('participants', arrayContains: currentUid)
+        .snapshots();
+  }
+
   Stream<List<ChatMessage>> messagesStream(String chatId) {
     return _chats
         .doc(chatId)

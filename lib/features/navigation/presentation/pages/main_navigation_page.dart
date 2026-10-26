@@ -2,10 +2,8 @@
 import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:real_chat/features/chat/presentation/pages/users_page.dart';
-
-
-
+import '../../../chat/presentation/pages/chats_page.dart';
+import '../../../chat/presentation/pages/users_page.dart';
 class MainNavigationPage extends StatefulWidget {
   const MainNavigationPage({
     super.key,
@@ -19,7 +17,7 @@ class MainNavigationPage extends StatefulWidget {
 }
 
 class _MainNavigationPageState extends State<MainNavigationPage> {
-  int _selectedIndex = 1;
+  int _selectedIndex = 0;
 
   static const List<IconData> _icons = [
     Icons.chat_bubble_outline_rounded,
@@ -29,21 +27,19 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
+    final colors = Theme.of(context).colorScheme;
 
     final pages = [
-      const _PlaceholderPage(
-        icon: Icons.chat_bubble_outline_rounded,
-        title: 'Chats',
-        message: 'Your conversations will appear here.',
+      ChatsPage(
+        currentUser: widget.currentUser,
+        onFindPeople: () {
+          setState(() {
+            _selectedIndex = 1;
+          });
+        },
       ),
       UsersPage(currentUser: widget.currentUser),
-      const _PlaceholderPage(
-        icon: Icons.person_outline_rounded,
-        title: 'Profile',
-        message: 'Your profile will appear here.',
-      ),
+      const _ProfilePlaceholder(),
     ];
 
     return Scaffold(
@@ -72,16 +68,8 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
   }
 }
 
-class _PlaceholderPage extends StatelessWidget {
-  const _PlaceholderPage({
-    required this.icon,
-    required this.title,
-    required this.message,
-  });
-
-  final IconData icon;
-  final String title;
-  final String message;
+class _ProfilePlaceholder extends StatelessWidget {
+  const _ProfilePlaceholder();
 
   @override
   Widget build(BuildContext context) {
@@ -90,31 +78,31 @@ class _PlaceholderPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          title,
-          style: const TextStyle(fontWeight: FontWeight.bold),
+        title: const Text(
+          'Profile',
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
       ),
       body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, size: 64, color: colors.primary),
-              const SizedBox(height: 16),
-              Text(
-                title,
-                style: theme.textTheme.headlineSmall,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                message,
-                textAlign: TextAlign.center,
-                style: TextStyle(color: colors.onSurfaceVariant),
-              ),
-            ],
-          ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.person_outline_rounded,
+              size: 64,
+              color: colors.primary,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Your Profile',
+              style: theme.textTheme.headlineSmall,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Your account details will appear here.',
+              style: TextStyle(color: colors.onSurfaceVariant),
+            ),
+          ],
         ),
       ),
     );
