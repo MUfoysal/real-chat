@@ -328,7 +328,7 @@ class _ChatPageState extends State<ChatPage> {
                               debugPrint('CONVERSATION ERROR: $error');
                               debugPrintStack(stackTrace: stackTrace);
 
-                              if (!mounted) return;
+                              if (!context.mounted) return;
 
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(

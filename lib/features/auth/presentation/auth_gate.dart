@@ -1,9 +1,10 @@
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../data/auth_repository.dart';
 import 'pages/login_page.dart';
-import '../../chat/presentation/pages/users_page.dart';
+import '../../navigation/presentation/pages/main_navigation_page.dart';
 
 class AuthGate extends StatelessWidget {
   AuthGate({super.key});
@@ -40,7 +41,7 @@ class AuthGate extends StatelessWidget {
         final user = snapshot.data;
 
         if (user != null) {
-          return UsersPage(currentUser: user);
+          return MainNavigationPage(currentUser: user);
         }
 
         return const LoginPage();
