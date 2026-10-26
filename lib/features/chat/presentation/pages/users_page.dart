@@ -233,7 +233,7 @@ class _UsersPageState extends State<UsersPage> {
                   return ListView.separated(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
                     itemCount: users.length,
-                    separatorBuilder: (_, __) =>
+                    separatorBuilder: (_, _) =>
                         const SizedBox(height: 6),
                     itemBuilder: (context, index) {
                       final userDoc = users[index];
