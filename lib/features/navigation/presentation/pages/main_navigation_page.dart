@@ -2,8 +2,9 @@
 import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import '../../../chat/presentation/pages/chats_page.dart';
+
 import '../../../chat/presentation/pages/users_page.dart';
+
 class MainNavigationPage extends StatefulWidget {
   const MainNavigationPage({
     super.key,
@@ -20,7 +21,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
   int _selectedIndex = 0;
 
   static const List<IconData> _icons = [
-    Icons.chat_bubble_outline_rounded,
+    Icons.home_rounded,
     Icons.people_outline_rounded,
     Icons.person_outline_rounded,
   ];
@@ -30,14 +31,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
     final colors = Theme.of(context).colorScheme;
 
     final pages = [
-      ChatsPage(
-        currentUser: widget.currentUser,
-        onFindPeople: () {
-          setState(() {
-            _selectedIndex = 1;
-          });
-        },
-      ),
+      const _HomePlaceholder(),
       UsersPage(currentUser: widget.currentUser),
       const _ProfilePlaceholder(),
     ];
@@ -63,6 +57,45 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
         activeColor: colors.primary,
         inactiveColor: colors.onSurfaceVariant,
         elevation: 8,
+        splashColor: colors.primary.withValues(alpha: 0.12),
+        splashRadius: 24,
+      ),
+    );
+  }
+}
+
+class _HomePlaceholder extends StatelessWidget {
+  const _HomePlaceholder();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Home',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.home_rounded,
+              size: 64,
+              color: colors.primary,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Welcome to Real Chat!',
+              style: theme.textTheme.headlineSmall,
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }
