@@ -1,42 +1,40 @@
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../../../chat/presentation/pages/users_page.dart';
+import '../../../home/presentation/pages/home_page.dart';
 
 class MainNavigationPage extends StatefulWidget {
-  const MainNavigationPage({
-    super.key,
-    required this.currentUser,
-  });
+  const MainNavigationPage({super.key, required this.currentUser});
 
   final User currentUser;
 
   @override
-  State<MainNavigationPage> createState() =>
-      _MainNavigationPageState();
+  State<MainNavigationPage> createState() => _MainNavigationPageState();
 }
 
 class _MainNavigationPageState extends State<MainNavigationPage> {
   int _selectedIndex = 0;
-
-  final List<Widget> _pages = [];
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
 
     final pages = [
-      const _HomePlaceholder(),
+      HomePage(
+        currentUser: widget.currentUser,
+        onFindPeople: () {
+          setState(() {
+            _selectedIndex = 1;
+          });
+        },
+      ),
       UsersPage(currentUser: widget.currentUser),
       const _ProfilePlaceholder(),
     ];
 
     return Scaffold(
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: pages,
-      ),
+      body: IndexedStack(index: _selectedIndex, children: pages),
       bottomNavigationBar: SafeArea(
         minimum: const EdgeInsets.fromLTRB(20, 0, 20, 12),
         child: Container(
@@ -62,8 +60,8 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
               ),
               _buildNavItem(
                 index: 1,
-                icon: Icons.chat_bubble,
-                label: 'chat',
+                icon: Icons.chat_bubble_sharp,
+                label: 'chats',
                 colors: colors,
               ),
               _buildNavItem(
@@ -113,9 +111,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
                 duration: const Duration(milliseconds: 200),
                 child: Icon(
                   icon,
-                  color: isSelected
-                      ? colors.primary
-                      : colors.onSurfaceVariant,
+                  color: isSelected ? colors.primary : colors.onSurfaceVariant,
                   size: 23,
                 ),
               ),
@@ -124,36 +120,13 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
                 duration: const Duration(milliseconds: 200),
                 style: TextStyle(
                   fontSize: 11,
-                  fontWeight:
-                      isSelected ? FontWeight.w700 : FontWeight.w500,
-                  color: isSelected
-                      ? colors.primary
-                      : colors.onSurfaceVariant,
+                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                  color: isSelected ? colors.primary : colors.onSurfaceVariant,
                 ),
                 child: Text(label),
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _HomePlaceholder extends StatelessWidget {
-  const _HomePlaceholder();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: Text(
-          'Welcome to Real Chat!',
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
-          textAlign: TextAlign.center,
         ),
       ),
     );
