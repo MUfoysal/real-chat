@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:real_chat/features/profile/presentation/pages/about_page.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({
@@ -137,8 +138,6 @@ class ProfilePage extends StatelessWidget {
               ),
 
               const SizedBox(height: 30),
-
-              
 
               // Premium split profile card
               Container(
@@ -470,57 +469,74 @@ class ProfilePage extends StatelessWidget {
 
               const SizedBox(height: 16),
 
-              Container(
-                padding: const EdgeInsets.all(17),
-                decoration: BoxDecoration(
-                  color: colors.surfaceContainerHighest.withValues(alpha: 0.35),
+              Material(
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(22),
+                child: InkWell(
                   borderRadius: BorderRadius.circular(22),
-                  border: Border.all(
-                    color: colors.outlineVariant.withValues(alpha: 0.25),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AboutPage(),
+                      ),
+                    );
+                  },
+                  child: Ink(
+                    padding: const EdgeInsets.all(17),
+                    decoration: BoxDecoration(
+                      color: colors.surfaceContainerHighest.withValues(
+                        alpha: 0.35,
+                      ),
+                      borderRadius: BorderRadius.circular(22),
+                      border: Border.all(
+                        color: colors.outlineVariant.withValues(alpha: 0.25),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          height: 49,
+                          width: 49,
+                          decoration: BoxDecoration(
+                            color: colors.primaryContainer,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Icon(
+                            Icons.forum_rounded,
+                            color: colors.onPrimaryContainer,
+                            size: 23,
+                          ),
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'About Real Chat',
+                                style: theme.textTheme.titleSmall?.copyWith(
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                              const SizedBox(height: 5),
+                              Text(
+                                'Your space for meaningful connections.',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: colors.onSurfaceVariant,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Icon(
+                          Icons.arrow_forward_ios_rounded,
+                          size: 15,
+                          color: colors.onSurfaceVariant,
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      height: 49,
-                      width: 49,
-                      decoration: BoxDecoration(
-                        color: colors.primaryContainer,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Icon(
-                        Icons.forum_rounded,
-                        color: colors.onPrimaryContainer,
-                        size: 23,
-                      ),
-                    ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'About Real Chat',
-                            style: theme.textTheme.titleSmall?.copyWith(
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                          const SizedBox(height: 5),
-                          Text(
-                            'Your space for meaningful connections.',
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: colors.onSurfaceVariant,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Icon(
-                      Icons.arrow_forward_ios_rounded,
-                      size: 15,
-                      color: colors.onSurfaceVariant,
-                    ),
-                  ],
                 ),
               ),
 
@@ -635,8 +651,6 @@ class ProfilePage extends StatelessWidget {
     );
   }
 }
-
-
 
 class _SectionHeading extends StatelessWidget {
   const _SectionHeading({required this.title, required this.subtitle});
