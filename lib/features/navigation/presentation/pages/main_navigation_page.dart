@@ -1,8 +1,10 @@
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../../../chat/presentation/pages/users_page.dart';
 import '../../../home/presentation/pages/home_page.dart';
+import '../../../profile/presentation/pages/profile_page.dart';
 
 class MainNavigationPage extends StatefulWidget {
   const MainNavigationPage({super.key, required this.currentUser});
@@ -30,11 +32,19 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
         },
       ),
       UsersPage(currentUser: widget.currentUser),
-      const _ProfilePlaceholder(),
+      ProfilePage(
+        currentUser: widget.currentUser,
+        onLogout: () async {
+          await FirebaseAuth.instance.signOut();
+        },
+      ),
     ];
 
     return Scaffold(
-      body: IndexedStack(index: _selectedIndex, children: pages),
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: pages,
+      ),
       bottomNavigationBar: SafeArea(
         minimum: const EdgeInsets.fromLTRB(20, 0, 20, 12),
         child: Container(
@@ -61,7 +71,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
               _buildNavItem(
                 index: 1,
                 icon: Icons.chat_bubble_sharp,
-                label: 'chats',
+                label: 'Chats',
                 colors: colors,
               ),
               _buildNavItem(
@@ -111,7 +121,9 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
                 duration: const Duration(milliseconds: 200),
                 child: Icon(
                   icon,
-                  color: isSelected ? colors.primary : colors.onSurfaceVariant,
+                  color: isSelected
+                      ? colors.primary
+                      : colors.onSurfaceVariant,
                   size: 23,
                 ),
               ),
@@ -120,33 +132,16 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
                 duration: const Duration(milliseconds: 200),
                 style: TextStyle(
                   fontSize: 11,
-                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                  color: isSelected ? colors.primary : colors.onSurfaceVariant,
+                  fontWeight:
+                      isSelected ? FontWeight.w700 : FontWeight.w500,
+                  color: isSelected
+                      ? colors.primary
+                      : colors.onSurfaceVariant,
                 ),
                 child: Text(label),
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ProfilePlaceholder extends StatelessWidget {
-  const _ProfilePlaceholder();
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-
-    return Scaffold(
-      appBar: AppBar(title: const Text('Profile')),
-      body: Center(
-        child: Icon(
-          Icons.person_outline_rounded,
-          size: 64,
-          color: colors.primary,
         ),
       ),
     );
