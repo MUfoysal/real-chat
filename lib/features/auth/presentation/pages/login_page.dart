@@ -345,7 +345,7 @@ class _LoginPageState extends State<LoginPage> {
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
                               Text(
-                                'Sign in',
+                                'Log in',
                                 style: theme.textTheme.titleLarge?.copyWith(
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -504,7 +504,7 @@ class _LoginPageState extends State<LoginPage> {
                                               MainAxisAlignment.center,
                                           children: [
                                             const Text(
-                                              'Sign In',
+                                              'Log In',
                                               style: TextStyle(
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.bold,

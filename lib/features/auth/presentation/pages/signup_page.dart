@@ -520,7 +520,7 @@ class _SignupPageState extends State<SignupPage> {
                                   ? null
                                   : () => Navigator.of(context).pop(),
                               child: const Text(
-                                'Sign In',
+                                'Log In',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                 ),
