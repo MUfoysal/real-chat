@@ -1,3 +1,4 @@
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -13,15 +14,18 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
 
     final displayName = currentUser.displayName?.trim();
     final userName = displayName != null && displayName.isNotEmpty
         ? displayName
         : 'there';
 
+    final photoUrl = currentUser.photoURL;
+
     return Scaffold(
-      backgroundColor: colors.surface,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(22, 20, 22, 30),
@@ -36,7 +40,7 @@ class HomePage extends StatelessWidget {
                     width: 48,
                     decoration: BoxDecoration(
                       color: colors.primaryContainer,
-                      borderRadius: BorderRadius.circular(15),
+                      borderRadius: BorderRadius.circular(16),
                     ),
                     child: Icon(
                       Icons.forum_rounded,
@@ -51,16 +55,15 @@ class HomePage extends StatelessWidget {
                       children: [
                         Text(
                           'REAL CHAT',
-                          style: TextStyle(
-                            color: colors.onSurface,
-                            fontSize: 17,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 1.5,
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 2,
                           ),
                         ),
+                        const SizedBox(height: 3),
                         Text(
                           'Connect. Communicate.',
-                          style: TextStyle(
+                          style: theme.textTheme.bodySmall?.copyWith(
                             color: colors.onSurfaceVariant,
                             fontSize: 11,
                           ),
@@ -68,206 +71,291 @@ class HomePage extends StatelessWidget {
                       ],
                     ),
                   ),
-                  CircleAvatar(
-                    radius: 23,
-                    backgroundColor: colors.primaryContainer,
-                    backgroundImage: currentUser.photoURL != null
-                        ? NetworkImage(currentUser.photoURL!)
-                        : null,
-                    child: currentUser.photoURL == null
-                        ? Icon(
-                            Icons.person_rounded,
-                            color: colors.onPrimaryContainer,
-                          )
-                        : null,
+                  Container(
+                    padding: const EdgeInsets.all(3),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: colors.primary.withValues(alpha: 0.6),
+                        width: 1.5,
+                      ),
+                    ),
+                    child: CircleAvatar(
+                      radius: 21,
+                      backgroundColor: colors.primaryContainer,
+                      backgroundImage:
+                          photoUrl != null && photoUrl.isNotEmpty
+                              ? NetworkImage(photoUrl)
+                              : null,
+                      child: photoUrl == null || photoUrl.isEmpty
+                          ? Icon(
+                              Icons.person_rounded,
+                              color: colors.onPrimaryContainer,
+                            )
+                          : null,
+                    ),
                   ),
                 ],
               ),
 
-              const SizedBox(height: 45),
+              const SizedBox(height: 42),
 
               // Welcome section
               Text(
                 'WELCOME BACK',
-                style: TextStyle(
+                style: theme.textTheme.labelMedium?.copyWith(
                   color: colors.primary,
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 2,
-                ),
-              ),
-
-              const SizedBox(height: 13),
-
-              Text(
-                'Hello, $userName!',
-                style: TextStyle(
-                  color: colors.onSurface,
-                  fontSize: 32,
                   fontWeight: FontWeight.w800,
-                  height: 1.2,
+                  letterSpacing: 2.5,
                 ),
               ),
-
               const SizedBox(height: 12),
-
               Text(
-                'Welcome to Real Chat!',
-                style: TextStyle(
-                  color: colors.onSurface,
-                  fontSize: 21,
-                  fontWeight: FontWeight.w600,
+                'Hello, $userName',
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.headlineLarge?.copyWith(
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: -1.2,
+                  height: 1.15,
                 ),
               ),
-
-              const SizedBox(height: 10),
-
+              const SizedBox(height: 12),
               Text(
-                'A place to connect with people, share your '
-                'thoughts, and start meaningful conversations.',
-                style: TextStyle(
+                'Good conversations begin with a simple hello. '
+                'Find your people and make meaningful connections.',
+                style: theme.textTheme.bodyMedium?.copyWith(
                   color: colors.onSurfaceVariant,
-                  fontSize: 14,
                   height: 1.7,
                 ),
               ),
 
-              const SizedBox(height: 35),
+              const SizedBox(height: 30),
 
-              // Find People Card
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(23),
-                decoration: BoxDecoration(
-                  color: colors.primaryContainer,
-                  borderRadius: BorderRadius.circular(24),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+              // Find People hero card
+              ClipRRect(
+                borderRadius: BorderRadius.circular(28),
+                child: Stack(
                   children: [
                     Container(
-                      height: 52,
-                      width: 52,
-                      decoration: BoxDecoration(
-                        color: colors.surface.withValues(alpha: 0.7),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Icon(
-                        Icons.people_alt_rounded,
-                        color: colors.onPrimaryContainer,
-                        size: 28,
-                      ),
-                    ),
-
-                    const SizedBox(height: 22),
-
-                    Text(
-                      'Find Your People',
-                      style: TextStyle(
-                        color: colors.onPrimaryContainer,
-                        fontSize: 23,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-
-                    const SizedBox(height: 9),
-
-                    Text(
-                      'Discover new people and start a conversation. '
-                      'Your next connection is just one tap away.',
-                      style: TextStyle(
-                        color: colors.onPrimaryContainer.withValues(alpha: 0.8),
-                        fontSize: 13,
-                        height: 1.6,
-                      ),
-                    ),
-
-                    const SizedBox(height: 22),
-
-                    SizedBox(
                       width: double.infinity,
-                      height: 50,
-                      child: FilledButton(
-                        onPressed: onFindPeople,
-                        style: FilledButton.styleFrom(
-                          backgroundColor: colors.primary,
-                          foregroundColor: colors.onPrimary,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                        ),
-                        child: const Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Find People',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            SizedBox(width: 9),
-                            Icon(Icons.arrow_forward_rounded, size: 19),
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            colors.primary,
+                            colors.primaryContainer,
                           ],
                         ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                height: 54,
+                                width: 54,
+                                decoration: BoxDecoration(
+                                  color: colors.onPrimary.withValues(
+                                    alpha: 0.12,
+                                  ),
+                                  borderRadius: BorderRadius.circular(17),
+                                  border: Border.all(
+                                    color: colors.onPrimary.withValues(
+                                      alpha: 0.15,
+                                    ),
+                                  ),
+                                ),
+                                child: Icon(
+                                  Icons.people_alt_rounded,
+                                  color: colors.onPrimary,
+                                  size: 29,
+                                ),
+                              ),
+                              const Spacer(),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 11,
+                                  vertical: 7,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: colors.onPrimary.withValues(
+                                    alpha: 0.12,
+                                  ),
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
+                                child: Text(
+                                  'EXPLORE',
+                                  style: theme.textTheme.labelSmall?.copyWith(
+                                    color: colors.onPrimary,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 1.2,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 28),
+                          Text(
+                            'Find Your People',
+                            style: theme.textTheme.headlineSmall?.copyWith(
+                              color: colors.onPrimary,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: -0.5,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            'Discover new people, build connections, '
+                            'and start conversations that matter.',
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: colors.onPrimary.withValues(alpha: 0.82),
+                              height: 1.65,
+                            ),
+                          ),
+                          const SizedBox(height: 25),
+                          SizedBox(
+                            height: 53,
+                            width: double.infinity,
+                            child: FilledButton(
+                              onPressed: onFindPeople,
+                              style: FilledButton.styleFrom(
+                                backgroundColor: colors.onPrimary,
+                                foregroundColor: colors.primary,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                elevation: 0,
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Text(
+                                    'Explore People',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: 15,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  const Icon(
+                                    Icons.arrow_forward_rounded,
+                                    size: 20,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Decorative background shapes
+                    Positioned(
+                      right: -55,
+                      top: -65,
+                      child: Container(
+                        height: 180,
+                        width: 180,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: colors.onPrimary.withValues(alpha: 0.07),
+                            width: 25,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      right: 25,
+                      bottom: 80,
+                      child: Icon(
+                        Icons.forum_rounded,
+                        size: 85,
+                        color: colors.onPrimary.withValues(alpha: 0.045),
                       ),
                     ),
                   ],
                 ),
               ),
 
-              const SizedBox(height: 35),
+              const SizedBox(height: 36),
 
-              // Introduction
-              Text(
-                'WHY REAL CHAT?',
-                style: TextStyle(
-                  color: colors.onSurface,
-                  fontSize: 13,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.5,
-                ),
+              // Features section heading
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'WHAT MAKES US DIFFERENT',
+                      style: theme.textTheme.labelMedium?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 1.3,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    height: 1,
+                    width: 35,
+                    color: colors.outlineVariant.withValues(alpha: 0.5),
+                  ),
+                ],
               ),
 
               const SizedBox(height: 18),
 
-              _FeatureItem(
+              // Feature cards
+              _FeatureCard(
                 icon: Icons.bolt_rounded,
                 title: 'Real-time Messaging',
-                description: 'Stay connected through instant conversations.',
+                description:
+                    'Stay connected through instant conversations.',
                 colors: colors,
               ),
-
-              const SizedBox(height: 17),
-
-              _FeatureItem(
+              const SizedBox(height: 12),
+              _FeatureCard(
                 icon: Icons.people_outline_rounded,
                 title: 'Connect with People',
-                description: 'Discover people and make new connections.',
+                description:
+                    'Discover people and make new connections.',
                 colors: colors,
               ),
-
-              const SizedBox(height: 17),
-
-              _FeatureItem(
+              const SizedBox(height: 12),
+              _FeatureCard(
                 icon: Icons.lock_outline_rounded,
                 title: 'Personal Account',
-                description: 'Access your account and your conversations.',
+                description:
+                    'Your account and conversations stay personal.',
                 colors: colors,
               ),
 
               const SizedBox(height: 35),
 
+              // Footer
               Center(
-                child: Text(
-                  'MADE FOR MEANINGFUL CONNECTIONS',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: colors.onSurfaceVariant.withValues(alpha: 0.7),
-                    fontSize: 10,
-                    letterSpacing: 1.3,
-                    fontWeight: FontWeight.w600,
-                  ),
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.favorite_rounded,
+                      color: colors.primary.withValues(alpha: 0.8),
+                      size: 19,
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'MADE FOR MEANINGFUL CONNECTIONS',
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: colors.onSurfaceVariant.withValues(
+                          alpha: 0.7,
+                        ),
+                        fontSize: 9,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 1.4,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -278,8 +366,8 @@ class HomePage extends StatelessWidget {
   }
 }
 
-class _FeatureItem extends StatelessWidget {
-  const _FeatureItem({
+class _FeatureCard extends StatelessWidget {
+  const _FeatureCard({
     required this.icon,
     required this.title,
     required this.description,
@@ -293,44 +381,62 @@ class _FeatureItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          height: 46,
-          width: 46,
-          decoration: BoxDecoration(
-            color: colors.primaryContainer,
-            borderRadius: BorderRadius.circular(14),
-          ),
-          child: Icon(icon, color: colors.onPrimaryContainer, size: 23),
+    final theme = Theme.of(context);
+
+    return Container(
+      padding: const EdgeInsets.all(17),
+      decoration: BoxDecoration(
+        color: colors.surfaceContainerHighest.withValues(alpha: 0.35),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: colors.outlineVariant.withValues(alpha: 0.25),
         ),
-        const SizedBox(width: 14),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: TextStyle(
-                  color: colors.onSurface,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 5),
-              Text(
-                description,
-                style: TextStyle(
-                  color: colors.onSurfaceVariant,
-                  fontSize: 12,
-                  height: 1.5,
-                ),
-              ),
-            ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            height: 48,
+            width: 48,
+            decoration: BoxDecoration(
+              color: colors.primaryContainer,
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: Icon(
+              icon,
+              color: colors.onPrimaryContainer,
+              size: 24,
+            ),
           ),
-        ),
-      ],
+          const SizedBox(width: 15),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  description,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: colors.onSurfaceVariant,
+                    height: 1.5,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          Icon(
+            Icons.arrow_outward_rounded,
+            size: 18,
+            color: colors.onSurfaceVariant.withValues(alpha: 0.6),
+          ),
+        ],
+      ),
     );
   }
 }
